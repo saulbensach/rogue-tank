@@ -93,11 +93,17 @@ public class LoginScreen implements Screen {
         sendButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                System.out.println(nameTextField.getText()+" "+passwordTextField.getText());
+                //System.out.println(nameTextField.getText()+" "+passwordTextField.getText());
             }
         });
 
         TextButton registerButton = new TextButton("Sign up",new TextButton.TextButtonStyle(skin.getDrawable("orangeButton"),skin.getDrawable("orangeButton"),skin.getDrawable("orangeButton"),new BitmapFont()));
+        registerButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                //System.out.println(nameTextField.getText()+" "+passwordTextField.getText());
+            }
+        });
 
 
 
