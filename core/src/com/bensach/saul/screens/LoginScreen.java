@@ -1,17 +1,36 @@
 package com.bensach.saul.screens;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.bensach.saul.GameStart;
 
 /**
  * Created by saul- on 06/04/2016.
  */
+
 public class LoginScreen implements Screen {
 
     private GameStart gameStart;
 
+    /*UI*/
+    private Stage stage;
+
     public LoginScreen(GameStart gameStart) {
         this.gameStart = gameStart;
+        stage = new Stage();
+        Gdx.input.setInputProcessor(stage);
+        createUI();
     }
 
     @Override
@@ -21,12 +40,15 @@ public class LoginScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        stage.act(delta);
+        stage.draw();
 
     }
 
     @Override
     public void resize(int width, int height) {
-
+        stage.getViewport().update(width, height);
     }
 
     @Override
@@ -46,6 +68,53 @@ public class LoginScreen implements Screen {
 
     @Override
     public void dispose() {
+
+    }
+
+    private void createUI(){
+
+        TextureAtlas textureAtlas = new TextureAtlas("gui/gui.pack");
+        Skin skin = new Skin();
+        skin.addRegions(textureAtlas);
+
+        //TODO fix text offset
+        TextField.TextFieldStyle textFieldStyle = new TextField.TextFieldStyle(new BitmapFont(),Color.BLACK,null,null,skin.getDrawable("textField"));
+        final TextField nameTextField = new TextField("", textFieldStyle);
+        nameTextField.setAlignment(Align.center);
+        nameTextField.setMessageText("Username");
+        final TextField passwordTextField = new TextField("", textFieldStyle);
+        passwordTextField.setMessageText("Password");
+        passwordTextField.setPasswordCharacter('*');
+        passwordTextField.setPasswordMode(true);
+        passwordTextField.setAlignment(Align.center);
+
+
+        TextButton sendButton = new TextButton("Sign in",new TextButton.TextButtonStyle(skin.getDrawable("greenButton"),skin.getDrawable("greenButton"),skin.getDrawable("greenButton"),new BitmapFont()));
+        sendButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                System.out.println(nameTextField.getText()+" "+passwordTextField.getText());
+            }
+        });
+
+        TextButton registerButton = new TextButton("Sign up",new TextButton.TextButtonStyle(skin.getDrawable("orangeButton"),skin.getDrawable("orangeButton"),skin.getDrawable("orangeButton"),new BitmapFont()));
+
+
+
+        Table table = new Table();
+        //table.setBackground(skin.getDrawable("panel"));
+        table.setFillParent(true);
+        table.add(nameTextField).width(200).padBottom(5);
+        table.row();
+        table.add(passwordTextField).width(200);
+        table.row();
+        table.add(sendButton).width(200).padTop(20);
+        table.row();
+        table.add(registerButton).width(200).padTop(5);
+
+
+        table.setDebug(true);
+        stage.addActor(table);
 
     }
 }

@@ -20,6 +20,8 @@ public class GameStart extends Game {
 		mainMenu 		= new MainMenu(this);
 		settingsScreen 	= new SettingsScreen(this);
 
+		setScreen(loginScreen);
+
 	}
 
 }

@@ -1,0 +1,54 @@
+
+gui.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+greenButton
+  rotate: false
+  xy: 1, 70
+  size: 190, 45
+  orig: 190, 45
+  offset: 0, 0
+  index: -1
+orangeButton
+  rotate: false
+  xy: 1, 23
+  size: 190, 45
+  orig: 190, 45
+  offset: 0, 0
+  index: -1
+textField
+  rotate: false
+  xy: 193, 70
+  size: 190, 45
+  orig: 190, 45
+  offset: 0, 0
+  index: -1
+panel
+  rotate: false
+  xy: 385, 15
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+orangeSquare
+  rotate: false
+  xy: 193, 23
+  size: 49, 45
+  orig: 49, 45
+  offset: 0, 0
+  index: -1
+check
+  rotate: false
+  xy: 1, 1
+  size: 21, 20
+  orig: 21, 20
+  offset: 0, 0
+  index: -1
+cruz
+  rotate: false
+  xy: 487, 97
+  size: 18, 18
+  orig: 18, 18
+  offset: 0, 0
+  index: -1
