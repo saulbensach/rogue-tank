@@ -10,7 +10,6 @@ public class GameStart extends ApplicationAdapter {
 	
 	@Override
 	public void create () {
-
 	}
 
 	@Override
