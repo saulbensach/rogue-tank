@@ -11,8 +11,6 @@ public class GameStart extends Game {
 	public MainMenu mainMenu;
 	public SettingsScreen settingsScreen;
 
-	private GameStart gameStart;
-
 	@Override
 	public void create () {
 
