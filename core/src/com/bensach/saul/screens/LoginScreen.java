@@ -29,13 +29,12 @@ public class LoginScreen implements Screen {
     public LoginScreen(GameStart gameStart) {
         this.gameStart = gameStart;
         stage = new Stage();
-        Gdx.input.setInputProcessor(stage);
         createUI();
     }
 
     @Override
     public void show() {
-
+        Gdx.input.setInputProcessor(stage);
     }
 
     @Override
@@ -94,6 +93,8 @@ public class LoginScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 //System.out.println(nameTextField.getText()+" "+passwordTextField.getText());
+                //Add DB ACCEs
+                gameStart.setScreen(gameStart.mainMenu);
             }
         });
 
@@ -101,10 +102,9 @@ public class LoginScreen implements Screen {
         registerButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                //System.out.println(nameTextField.getText()+" "+passwordTextField.getText());
+               gameStart.setScreen(gameStart.registerScreen);
             }
         });
-
 
 
         Table table = new Table();
