@@ -1,4 +1,4 @@
-package com.bensach.saul;
+package com.bensach.saul.screens;
 
 import com.badlogic.gdx.Game;
 import com.bensach.saul.screens.*;
@@ -10,6 +10,7 @@ public class GameStart extends Game {
 	public RegisterScreen registerScreen;
 	public MainMenu mainMenu;
 	public SettingsScreen settingsScreen;
+	public GameScreen gameScreen;
 
 	@Override
 	public void create () {
@@ -19,8 +20,9 @@ public class GameStart extends Game {
 		registerScreen 	= new RegisterScreen(this);
 		mainMenu 		= new MainMenu(this);
 		settingsScreen 	= new SettingsScreen(this);
+		gameScreen 		= new GameScreen(this);
 
-		setScreen(loginScreen);
+		setScreen(gameScreen);
 
 	}
 

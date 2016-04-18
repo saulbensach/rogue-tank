@@ -2,7 +2,7 @@ package com.bensach.saul.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import com.bensach.saul.GameStart;
+import com.bensach.saul.screens.GameStart;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {

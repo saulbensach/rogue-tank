@@ -1,19 +1,38 @@
 package com.bensach.saul.screens;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.bensach.saul.map.Level;
 
 /**
  * Created by saul- on 06/04/2016.
  */
 public class GameScreen implements Screen {
+
+    private GameStart gameStart;
+    private OrthographicCamera camera;
+    private Level level;
+
+    public GameScreen(GameStart gameStart){
+        this.gameStart = gameStart;
+        camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        camera.position.set(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2,0);
+        camera.zoom += 2;
+    }
+
     @Override
     public void show() {
-
+        level = new Level();
     }
 
     @Override
     public void render(float delta) {
-
+        Gdx.gl.glClearColor(0.5f,0.5f,0f,1f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        camera.update();
+        level.draw(camera);
     }
 
     @Override

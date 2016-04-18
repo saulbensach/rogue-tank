@@ -7,13 +7,16 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
-import com.bensach.saul.GameStart;
+import com.mysql.jdbc.PreparedStatement;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * Created by saul- on 06/04/2016.
@@ -92,9 +95,7 @@ public class LoginScreen implements Screen {
         sendButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                //System.out.println(nameTextField.getText()+" "+passwordTextField.getText());
-                //Add DB ACCEs
-                gameStart.setScreen(gameStart.mainMenu);
+                login(nameTextField.getText(), passwordTextField.getText());
             }
         });
 
@@ -121,6 +122,31 @@ public class LoginScreen implements Screen {
 
         table.setDebug(true);
         stage.addActor(table);
+
+    }
+
+    private void login(String user, String password){
+        try {
+            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/tankmaster", "root", "");
+            String query = "SELECT password FROM users WHERE name LIKE ? AND password LIKE ?;";
+            PreparedStatement statement = (PreparedStatement) conn.prepareStatement(query);
+            statement.setString(1, user+"%");
+            statement.setString(2, password+"%");
+            ResultSet resultSet = statement.executeQuery();
+            String dbPassword = "";
+            while(resultSet.next()){
+                dbPassword = resultSet.getString("password");
+            }
+            resultSet.close();
+            statement.close();
+            conn.close();
+            if(dbPassword.equals(password)){
+                gameStart.setScreen(gameStart.mainMenu);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
     }
 }

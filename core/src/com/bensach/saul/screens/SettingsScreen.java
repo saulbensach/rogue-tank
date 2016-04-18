@@ -1,7 +1,6 @@
 package com.bensach.saul.screens;
 
 import com.badlogic.gdx.Screen;
-import com.bensach.saul.GameStart;
 
 /**
  * Created by saul- on 06/04/2016.
