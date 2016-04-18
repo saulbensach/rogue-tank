@@ -14,7 +14,7 @@ public class Level {
     private OrthogonalTiledMapRenderer renderer;
 
     public Level(){
-        LevelBuilder builder = new LevelBuilder(95,40,10,10,5,10,5);
+        LevelBuilder builder = new LevelBuilder(400,400,25,40,20,40,20);
         map = builder.getMap();
         renderer = new OrthogonalTiledMapRenderer(map);
     }

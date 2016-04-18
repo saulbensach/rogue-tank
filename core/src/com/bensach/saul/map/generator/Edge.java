@@ -14,6 +14,14 @@ public class Edge implements Comparable<Edge> {
         weight = (int) Math.sqrt(Math.pow((p1.getX() - p2.getX()), 2) + Math.pow((p1.getY() - p2.getY()) , 2));
     }
 
+    public Edge(){
+
+    }
+
+    public int getWeight() {
+        return weight;
+    }
+
     public Point getP1() {
         return p1;
     }

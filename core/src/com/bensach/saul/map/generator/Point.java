@@ -58,4 +58,8 @@ public class Point {
     private float area(Point a, Point b, Point c){
         return 0.5f * (a.x * b.y - a.y * b.x + a.y * c.x - a.x * c.y + b.x * c.y - c.x * b.y);
     }
+
+    public int getValue() {
+        return value;
+    }
 }
