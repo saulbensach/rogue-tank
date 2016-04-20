@@ -8,6 +8,8 @@ import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.bensach.saul.map.CellType;
 import com.bensach.saul.map.Room;
@@ -25,6 +27,8 @@ public class LevelBuilder {
     private ArrayList<Room> rooms;
     private boolean firstRoom = false, endRoom = false;
     private int width, height, numRooms, roomMaxWidth, roomMinWidth, roomMaxHeight, roomMinHeight;
+    private Vector2 playerStart;
+    private ArrayList<Rectangle> walls;
 
     private int pointNumber;
     private ArrayList<Point> points;
@@ -46,8 +50,10 @@ public class LevelBuilder {
         this.height         = height;
         this.width          = width;
         pointNumber         = 0;
+        playerStart         = new Vector2();
         map                 = new TiledMap();
         cells               = new CellType[width][height];
+        walls               = new ArrayList<Rectangle>();
         rooms               = new ArrayList<Room>();
         edges               = new ArrayList<Edge>();
         mstEdges            = new ArrayList<Edge>();
@@ -215,6 +221,18 @@ public class LevelBuilder {
                 cells[x][y] = CellType.Floor;
             }
         }
+
+        if(!endRoom && firstRoom){
+            cells[px + width / 2][py + height / 2] = CellType.End;
+            endRoom = true;
+        }
+
+        if(!firstRoom){
+            cells[px + width / 2][py + height / 2] = CellType.Start;
+            playerStart.set((px + width / 2) * cellSize, (py + height / 2) * cellSize);
+            firstRoom = true;
+        }
+
     }
 
     private boolean checkValues(int x, int y, int width, int height){
@@ -222,6 +240,31 @@ public class LevelBuilder {
         if(x + width > this.width)  return false;
         if(y + height > this.height)return false;
         return true;
+    }
+
+    private void generateHitbox(){
+        for(int y = 1; y < height - 1; y++){
+            for(int x = 1; x < width - 1; x++){
+
+                //Coloca las paredes de las salas y los pasillos
+                if(cells[x][y] == CellType.Empty){
+                    if(
+                            cells[x + 1][y] == CellType.Floor || cells[x + 1][y] == CellType.Corridor ||
+                                    cells[x - 1][y] == CellType.Floor || cells[x - 1][y] == CellType.Corridor ||
+                                    cells[x][y + 1] == CellType.Floor || cells[x][y + 1] == CellType.Corridor ||
+                                    cells[x][y - 1] == CellType.Floor || cells[x][y - 1] == CellType.Corridor ||
+                                    cells[x + 1][y + 1] == CellType.Floor || cells[x][y + 1] == CellType.Corridor ||
+                                    cells[x - 1][y - 1] == CellType.Floor || cells[x][y - 1] == CellType.Corridor ||
+                                    cells[x - 1][y + 1] == CellType.Floor || cells[x][y + 1] == CellType.Corridor ||
+                                    cells[x + 1][y - 1] == CellType.Floor || cells[x][y - 1] == CellType.Corridor
+                            ){
+                        walls.add(new Rectangle(x,y,1,1));
+                        cells[x][y] = CellType.Wall;
+                    }
+                }
+
+            }
+        }
     }
 
     private boolean overlapRoom(int px, int py, int width, int height){
@@ -233,4 +276,10 @@ public class LevelBuilder {
         return false;
     }
 
+    public Vector2 getPlayerStart() {
+        return playerStart;
+    }
+    public ArrayList<Rectangle> getWalls() {
+        return walls;
+    }
 }

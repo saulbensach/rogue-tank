@@ -108,12 +108,6 @@ public class Graph {
             }
             // Else discard the next_edge
         }
-
-        // print the contents of result[] to display the built MST
-        System.out.println("Following are the edges in the constructed MST");
-        for (i = 0; i < e; ++i)
-            System.out.println(result[i].src+" -- "+result[i].dest+" == "+
-                    result[i].weight);
         return result;
     }
 }

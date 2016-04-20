@@ -3,11 +3,28 @@ package com.bensach.saul.player;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 
-/**
- * Created by saul- on 18/04/2016.
- */
+import java.util.ArrayList;
+
 public class Player extends Sprite implements InputProcessor {
+
+    private Vector2 playerPos;
+    private ArrayList<Rectangle> walls;
+
+    public Player (Vector2 playerPos, ArrayList<Rectangle> walls){
+        this.playerPos = playerPos;
+        this.walls = walls;
+    }
+
+    public void update(float delta){
+
+    }
+
+    public Vector2 getPlayerPos() {
+        return playerPos;
+    }
 
     @Override
     public void draw(Batch batch) {
