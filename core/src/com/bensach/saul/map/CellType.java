@@ -5,6 +5,6 @@ package com.bensach.saul.map;
  */
 public enum CellType {
 
-    Empty, Wall, Floor, End, Start, CellType, Corridor
+    Empty, Wall, Floor, End, Start, CellType, Corridor, CorridorPassed
 
 }

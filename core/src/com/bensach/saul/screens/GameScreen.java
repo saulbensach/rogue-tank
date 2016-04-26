@@ -19,7 +19,7 @@ public class GameScreen implements Screen {
         this.gameStart = gameStart;
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2,0);
-        camera.zoom += 10;
+        camera.zoom += 6;
     }
 
     @Override

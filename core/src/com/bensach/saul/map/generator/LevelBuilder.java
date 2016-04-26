@@ -26,7 +26,7 @@ public class LevelBuilder {
     private CellType[][] cells;
     private ArrayList<Room> rooms;
     private boolean firstRoom = false, endRoom = false;
-    private int width, height, numRooms, roomMaxWidth, roomMinWidth, roomMaxHeight, roomMinHeight;
+    private int width, height, numRooms, roomMaxWidth, roomMinWidth, roomMaxHeight, roomMinHeight, wallWidth = 8;
     private Vector2 playerStart;
     private ArrayList<Rectangle> walls;
 
@@ -41,7 +41,9 @@ public class LevelBuilder {
     private TextureRegion dirt = new TextureRegion(new Texture(Gdx.files.internal("map/dirt.png")));
     private TextureRegion stone = new TextureRegion(new Texture(Gdx.files.internal("map/stone.png")));
 
+    //TODO se puede optimizar no teniendo que volver a instanciar todas las variables, si queda tiempo TERMINARLO
     public LevelBuilder(int width, int height, int numRooms, int roomMaxWidth, int roomMinWidth, int roomMaxHeight, int roomMinHeight) {
+        long startTime = System.nanoTime();
         this.roomMinHeight  = roomMinHeight;
         this.roomMaxHeight  = roomMaxHeight;
         this.roomMinWidth   = roomMinWidth;
@@ -59,6 +61,9 @@ public class LevelBuilder {
         mstEdges            = new ArrayList<Edge>();
         points              = new ArrayList<Point>();
         buildLevel();
+        long totalTime = System.nanoTime() - startTime;
+        double seconds = (double) totalTime / 1000000000.0;
+        System.out.println(seconds);
     }
 
     public TiledMap getMap(){
@@ -150,46 +155,48 @@ public class LevelBuilder {
     }
 
     private void generateCorridors(){
-        Pathfinder pathfinder = new Pathfinder(width, height, 1);
+        ArrayList<GridNode> corridors = new ArrayList<GridNode>();
         for(Edge e: mstEdges){
+            Pathfinder pathfinder = new Pathfinder(width, height, 1);
             pathfinder.SetGridNode((int) e.getP1().getX(), (int) e.getP1().getY(), CellType.Start);
             pathfinder.SetGridNode((int) e.getP2().getX(), (int) e.getP2().getY(), CellType.End);
+
+            for(int y = 0; y < height; y++){
+                for(int x = 0; x < width; x++){
+                    pathfinder.SetGridNode(x,y, cells[x][y]);
+                }
+            }
             pathfinder.findPath();
 
             Array<GridNode> nodes = pathfinder.GetPath();
             for(GridNode n : nodes){
-                for(int i = 0; i < 3; i++){
-                    cells[(int)n.X][(int)n.Y] = CellType.Corridor;
-                    cells[(int)n.X + i][(int)n.Y] = CellType.Corridor;
-                    cells[(int)n.X - i][(int)n.Y] = CellType.Corridor;
-                    cells[(int)n.X][(int)n.Y + i] = CellType.Corridor;
-                    cells[(int)n.X][(int)n.Y - i] = CellType.Corridor;
-                    cells[(int)n.X + i][(int)n.Y + i] = CellType.Corridor;
-                    cells[(int)n.X - i][(int)n.Y - i] = CellType.Corridor;
-                    cells[(int)n.X + i][(int)n.Y - i] = CellType.Corridor;
-                    cells[(int)n.X - i][(int)n.Y + i] = CellType.Corridor;
-                }
+                corridors.add(n);
+                cells[(int)n.X][(int)n.Y] = CellType.Corridor;
             }
-
-            for(Room r : rooms){
-                for(int y = r.getY(); y < r.getHeight() + r.getY(); y++){
-                    for(int x = r.getX(); x < r.getWidth() + r.getX(); x++){
-                        if(y != 0 || x != 0 || x != width - 1 || y != height - 1){
-                            cells[x][y] = CellType.Floor;
-                        }
-                    }
-                }
-            }
-
 
         }
+        blankWorld();
+        for(GridNode n : corridors){
+            for(int i = 0; i < 3; i++){
+                cells[(int)n.X + i][(int)n.Y] = CellType.Corridor;
+                cells[(int)n.X - i][(int)n.Y] = CellType.Corridor;
+                cells[(int)n.X][(int)n.Y + i] = CellType.Corridor;
+                cells[(int)n.X][(int)n.Y - i] = CellType.Corridor;
+                cells[(int)n.X + i][(int)n.Y + i] = CellType.Corridor;
+                cells[(int)n.X - i][(int)n.Y - i] = CellType.Corridor;
+                cells[(int)n.X + i][(int)n.Y - i] = CellType.Corridor;
+                cells[(int)n.X - i][(int)n.Y + i] = CellType.Corridor;
+            }
+        }
+        for(Room r : rooms){
+            for(int y = r.getY() + wallWidth; y < r.getHeight() + r.getY() - wallWidth; y++){
+                for(int x = r.getX() + wallWidth ; x < r.getWidth() + r.getX() - wallWidth; x++){
+                    cells[x][y] = CellType.Floor;
+                }
+            }
+        }
+
     }
-
-    //TODO comprobar si lo necesido realmente ya que box2d me proporciona hitbox
-    //?¿?¿?¿
-    /*private void generateHitbox(){
-
-    }*/
 
     private void toTiled(){
         MapLayers layers = map.getLayers();
@@ -210,14 +217,21 @@ public class LevelBuilder {
         layers.add(layer);
     }
 
-    //TODO necesario?
-    private void toBox2d(){
-
-    }
-
     private void placeRoom(int px, int py, int width, int height){
         for(int y = py; y < height + py; y++){
             for(int x = px; x < width + px; x++){
+                if(x == px + (width / 2) || y == py + (height / 2)){
+                    cells[x][y] = CellType.Floor;
+                    continue;
+                }
+                if(y < py + wallWidth || y >= (py + height) - wallWidth){
+                    cells[x][y] = CellType.Wall;
+                    continue;
+                }
+                if(x < px + wallWidth || x >= (px + width) - wallWidth){
+                    cells[x][y] = CellType.Wall;
+                    continue;
+                }
                 cells[x][y] = CellType.Floor;
             }
         }
@@ -249,15 +263,15 @@ public class LevelBuilder {
                 //Coloca las paredes de las salas y los pasillos
                 if(cells[x][y] == CellType.Empty){
                     if(
-                            cells[x + 1][y] == CellType.Floor || cells[x + 1][y] == CellType.Corridor ||
-                                    cells[x - 1][y] == CellType.Floor || cells[x - 1][y] == CellType.Corridor ||
-                                    cells[x][y + 1] == CellType.Floor || cells[x][y + 1] == CellType.Corridor ||
-                                    cells[x][y - 1] == CellType.Floor || cells[x][y - 1] == CellType.Corridor ||
-                                    cells[x + 1][y + 1] == CellType.Floor || cells[x][y + 1] == CellType.Corridor ||
-                                    cells[x - 1][y - 1] == CellType.Floor || cells[x][y - 1] == CellType.Corridor ||
-                                    cells[x - 1][y + 1] == CellType.Floor || cells[x][y + 1] == CellType.Corridor ||
-                                    cells[x + 1][y - 1] == CellType.Floor || cells[x][y - 1] == CellType.Corridor
-                            ){
+                        cells[x + 1][y] == CellType.Floor || cells[x + 1][y] == CellType.Corridor ||
+                                cells[x - 1][y] == CellType.Floor || cells[x - 1][y] == CellType.Corridor ||
+                                cells[x][y + 1] == CellType.Floor || cells[x][y + 1] == CellType.Corridor ||
+                                cells[x][y - 1] == CellType.Floor || cells[x][y - 1] == CellType.Corridor ||
+                                cells[x + 1][y + 1] == CellType.Floor || cells[x][y + 1] == CellType.Corridor ||
+                                cells[x - 1][y - 1] == CellType.Floor || cells[x][y - 1] == CellType.Corridor ||
+                                cells[x - 1][y + 1] == CellType.Floor || cells[x][y + 1] == CellType.Corridor ||
+                                cells[x + 1][y - 1] == CellType.Floor || cells[x][y - 1] == CellType.Corridor
+                        ){
                         walls.add(new Rectangle(x,y,1,1));
                         cells[x][y] = CellType.Wall;
                     }
