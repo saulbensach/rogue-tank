@@ -10,6 +10,10 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.bensach.saul.map.CellType;
 import com.bensach.saul.map.Room;
@@ -36,6 +40,7 @@ public class LevelBuilder {
     private ArrayList<Edge> mstEdges;
 
     private TiledMap map;
+    private World world;
     private int cellSize = 16;
     private TextureRegion grass = new TextureRegion(new Texture(Gdx.files.internal("map/grass.png")));
     private TextureRegion dirt = new TextureRegion(new Texture(Gdx.files.internal("map/dirt.png")));
@@ -53,6 +58,7 @@ public class LevelBuilder {
         this.width          = width;
         pointNumber         = 0;
         playerStart         = new Vector2();
+        world               = new World(new Vector2(0,0), false);
         map                 = new TiledMap();
         cells               = new CellType[width][height];
         walls               = new ArrayList<Rectangle>();
@@ -63,7 +69,7 @@ public class LevelBuilder {
         buildLevel();
         long totalTime = System.nanoTime() - startTime;
         double seconds = (double) totalTime / 1000000000.0;
-        System.out.println(seconds);
+        System.out.println(seconds + " Segundos");
     }
 
     public TiledMap getMap(){
@@ -76,7 +82,9 @@ public class LevelBuilder {
         delaunayVertex();
         mst();
         generateCorridors();
+        generateHitbox();
         toTiled();
+        toBox2D();
     }
 
     private void blankWorld(){
@@ -198,22 +206,38 @@ public class LevelBuilder {
 
     }
 
+    private void toBox2D(){
+        for(Rectangle w : walls){
+            BodyDef bodyDef = new BodyDef();
+            bodyDef.type = BodyDef.BodyType.StaticBody;
+            bodyDef.position.set((w.getX()) + cellSize / 2, (w.getY()) + cellSize / 2);
+            Body body = world.createBody(bodyDef);
+            PolygonShape polygonShape = new PolygonShape();
+            polygonShape.setAsBox(cellSize / 2, cellSize / 2);
+            body.createFixture(polygonShape, 0.0f);
+            body.setUserData("wall");
+            polygonShape.dispose();
+        }
+    }
+
     private void toTiled(){
         MapLayers layers = map.getLayers();
         TiledMapTileLayer layer = new TiledMapTileLayer(width, height, cellSize,cellSize);
+        TiledMapTileLayer emptyLayer = new TiledMapTileLayer(width, height, cellSize,cellSize);
         for(int y = 0; y < layer.getHeight(); y++){
             for(int x = 0; x < layer.getWidth(); x++){
                 TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
                 //TODO añadir todas las texturas correctas!
                 switch (cells[x][y]){
-                    case Empty: cell.setTile(new StaticTiledMapTile(dirt));break;
-                    case Floor: cell.setTile(new StaticTiledMapTile(grass));break;
-                    case Wall: cell.setTile(new StaticTiledMapTile(dirt));break;
-                    case Corridor: cell.setTile(new StaticTiledMapTile(stone));break;
+                    case Empty: cell.setTile(null);emptyLayer.setCell(x,y,cell);break;
+                    case Floor: cell.setTile(new StaticTiledMapTile(grass));layer.setCell(x,y,cell);break;
+                    case Wall: cell.setTile(new StaticTiledMapTile(dirt));layer.setCell(x,y,cell);break;
+                    case Corridor: cell.setTile(new StaticTiledMapTile(stone));layer.setCell(x,y,cell);break;
                 }
-                layer.setCell(x,y,cell);
             }
         }
+        emptyLayer.setOpacity(0);
+        layers.add(emptyLayer);
         layers.add(layer);
     }
 
@@ -259,24 +283,21 @@ public class LevelBuilder {
     private void generateHitbox(){
         for(int y = 1; y < height - 1; y++){
             for(int x = 1; x < width - 1; x++){
-
-                //Coloca las paredes de las salas y los pasillos
                 if(cells[x][y] == CellType.Empty){
                     if(
                         cells[x + 1][y] == CellType.Floor || cells[x + 1][y] == CellType.Corridor ||
-                                cells[x - 1][y] == CellType.Floor || cells[x - 1][y] == CellType.Corridor ||
-                                cells[x][y + 1] == CellType.Floor || cells[x][y + 1] == CellType.Corridor ||
-                                cells[x][y - 1] == CellType.Floor || cells[x][y - 1] == CellType.Corridor ||
-                                cells[x + 1][y + 1] == CellType.Floor || cells[x][y + 1] == CellType.Corridor ||
-                                cells[x - 1][y - 1] == CellType.Floor || cells[x][y - 1] == CellType.Corridor ||
-                                cells[x - 1][y + 1] == CellType.Floor || cells[x][y + 1] == CellType.Corridor ||
-                                cells[x + 1][y - 1] == CellType.Floor || cells[x][y - 1] == CellType.Corridor
+                        cells[x - 1][y] == CellType.Floor || cells[x - 1][y] == CellType.Corridor ||
+                        cells[x][y + 1] == CellType.Floor || cells[x][y + 1] == CellType.Corridor ||
+                        cells[x][y - 1] == CellType.Floor || cells[x][y - 1] == CellType.Corridor ||
+                        cells[x + 1][y + 1] == CellType.Floor || cells[x][y + 1] == CellType.Corridor ||
+                        cells[x - 1][y - 1] == CellType.Floor || cells[x][y - 1] == CellType.Corridor ||
+                        cells[x - 1][y + 1] == CellType.Floor || cells[x][y + 1] == CellType.Corridor ||
+                        cells[x + 1][y - 1] == CellType.Floor || cells[x][y - 1] == CellType.Corridor
                         ){
-                        walls.add(new Rectangle(x,y,1,1));
+                        walls.add(new Rectangle(x*cellSize,y*cellSize,cellSize,cellSize));
                         cells[x][y] = CellType.Wall;
                     }
                 }
-
             }
         }
     }
@@ -296,4 +317,5 @@ public class LevelBuilder {
     public ArrayList<Rectangle> getWalls() {
         return walls;
     }
+    public World getWorld(){return world;}
 }
