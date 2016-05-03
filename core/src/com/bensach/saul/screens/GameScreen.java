@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.bensach.saul.enemies.EnemiesHandler;
+import com.bensach.saul.enemies.Enemy;
 import com.bensach.saul.map.Level;
 import com.bensach.saul.player.Player;
 
@@ -17,7 +19,7 @@ public class GameScreen implements Screen {
     private SpriteBatch batch;
     private Level level;
     private Player player;
-    private Player player2;
+    private EnemiesHandler enemiesHandler;
 
     public GameScreen(GameStart gameStart){
         this.gameStart = gameStart;
@@ -30,7 +32,8 @@ public class GameScreen implements Screen {
     public void show() {
         level = new Level();
         player = new Player(level.getPlayerStart(), level);
-        player2 = new Player(new Vector2(level.getPlayerStart().x + 50, level.getPlayerStart().y), level);
+        enemiesHandler = new EnemiesHandler();
+        enemiesHandler.addEnemy(new Enemy(new Vector2(player.getX() + 40, player.getY()),level));
         Gdx.input.setInputProcessor(player);
     }
 
@@ -40,7 +43,8 @@ public class GameScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         //update
         player.update(delta);
-        player2.update(delta);
+        level.updateEnemies(enemiesHandler);
+        enemiesHandler.updateEnemies();
         updateCamera();
 
         //render
@@ -48,7 +52,7 @@ public class GameScreen implements Screen {
         level.draw(camera);
         batch.begin();
         player.draw(batch);
-        player2.draw(batch);
+        enemiesHandler.drawEnemies(batch);
         batch.end();
         //Testing
         if(Gdx.input.isKeyPressed(Input.Keys.R)){

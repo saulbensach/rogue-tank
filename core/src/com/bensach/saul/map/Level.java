@@ -1,5 +1,6 @@
 package com.bensach.saul.map;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -7,6 +8,8 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.bensach.saul.enemies.EnemiesHandler;
+import com.bensach.saul.enemies.Enemy;
 import com.bensach.saul.map.generator.LevelBuilder;
 import com.bensach.saul.player.PlayerMovements;
 
@@ -22,7 +25,7 @@ public class Level {
     private OrthogonalTiledMapRenderer renderer;
     private World world;
     private float timeStep;
-    int velocityItearation, positionIteration;
+    private int velocityItearation, positionIteration;
     private Box2DDebugRenderer debugRenderer;
     private LevelBuilder builder;
     private Vector2 lookAt;
@@ -30,21 +33,23 @@ public class Level {
     private Vector2 endPos;
     private Vector2 normal;
     private Vector2 collisionPoint;
+    private boolean isCollision;
+    private Enemy enemyToKill;
     private ShapeRenderer shapeRenderer;
 
     public Level(){
-        timeStep = 1/60f;velocityItearation = 6; positionIteration = 2;
-        builder = new LevelBuilder(400,400,25,80,50,80,50);
-        lookAt = new Vector2(1.000f,1.000f);
-        map = builder.getMap();
-        world = builder.getWorld();
-        debugRenderer = new Box2DDebugRenderer(true, false, true, true, false, false);
-        renderer = new OrthogonalTiledMapRenderer(map);
-        startPos = new Vector2();
-        endPos = new Vector2();
-        normal = new Vector2();
-        collisionPoint = new Vector2();
-        shapeRenderer = new ShapeRenderer();
+        timeStep        = 1/60f;velocityItearation = 6; positionIteration = 2;
+        builder         = new LevelBuilder(400,400,1,80,50,80,50);
+        lookAt          = new Vector2(1.000f,1.000f);
+        map             = builder.getMap();
+        world           = builder.getWorld();
+        debugRenderer   = new Box2DDebugRenderer(true, false, false, true, true, true);
+        renderer        = new OrthogonalTiledMapRenderer(map);
+        startPos        = new Vector2();
+        endPos          = new Vector2();
+        normal          = new Vector2();
+        collisionPoint  = new Vector2();
+        shapeRenderer   = new ShapeRenderer();
     }
 
     public void updatePlayer(PlayerMovements movements, Body body, float rot, float speed, float rotVelocity){
@@ -76,8 +81,14 @@ public class Level {
                 final RayCastCallback callback = new RayCastCallback() {
                     @Override
                     public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
-                        if(fixture.getBody().getUserData().equals("wall"))return -1;
+                        if(fixture.getBody().getUserData().equals("wall")){
+                            isCollision = false;
+                            return -1;
+                        }
+                        if(fixture.isSensor())return 1;
                         Level.this.collisionPoint.set(point);
+                        isCollision = true;
+                        enemyToKill = (Enemy) fixture.getBody().getUserData();
                         Level.this.normal.set(normal);
                         return 0;
                     }
@@ -87,6 +98,15 @@ public class Level {
         }
     }
 
+    public void updateEnemies(EnemiesHandler enemiesHandler){
+        if(isCollision){
+            enemiesHandler.removeEnemy(enemyToKill);
+            enemyToKill = null;
+            isCollision = false;
+        }
+    }
+
+
     public void draw(OrthographicCamera camera){
         world.step(timeStep,velocityItearation,positionIteration);
         renderer.setView(camera);
@@ -94,7 +114,11 @@ public class Level {
         debugRenderer.render(world, camera.combined);
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.line(startPos, collisionPoint);
+        shapeRenderer.setColor(Color.WHITE);
+        if(isCollision){
+            shapeRenderer.setColor(Color.RED);
+        }
+        shapeRenderer.line(startPos, endPos);
         shapeRenderer.end();
     }
 

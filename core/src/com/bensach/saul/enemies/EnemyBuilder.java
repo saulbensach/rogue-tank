@@ -1,19 +1,19 @@
-package com.bensach.saul.player;
+package com.bensach.saul.enemies;
 
 import com.badlogic.gdx.physics.box2d.*;
 
 /**
- * Created by saul- on 02/05/2016.
+ * Created by saul- on 03/05/2016.
  */
-public class PlayerBuilder {
+public class EnemyBuilder {
 
     private Body body;
 
-    public PlayerBuilder(int x, int y, int width, int height, World world, float density, float friction, float restitution, Player player){
-        body = createBody(x,y,width,height,world,density,friction,restitution, player);
+    public EnemyBuilder(int x, int y, int width, int height, World world, float density, float friction, float restitution, Enemy enemy){
+        body = createBody(x,y,width,height,world,density,friction,restitution, enemy);
     }
 
-    private Body createBody(int x, int y, int width, int height, World world, float density, float friction, float restitution, Player player){
+    private Body createBody(int x, int y, int width, int height, World world, float density, float friction, float restitution, Enemy enemy){
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         bodyDef.position.set(x, y);
@@ -27,7 +27,13 @@ public class PlayerBuilder {
         fixtureDef.friction = friction;
         fixtureDef.restitution = restitution;
         body.createFixture(fixtureDef);
-        body.setUserData(player);
+        CircleShape circleShape = new CircleShape();
+        circleShape.setRadius(150f);
+        FixtureDef sensor = new FixtureDef();
+        sensor.shape = circleShape;
+        sensor.isSensor = true;
+        body.createFixture(sensor);
+        body.setUserData(enemy);
         polygonShape.dispose();
         return body;
     }
