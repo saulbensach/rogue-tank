@@ -8,6 +8,8 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.bensach.saul.map.Level;
 import com.bensach.saul.player.Player;
 
+import java.awt.geom.AffineTransform;
+
 /**
  * Created by saul- on 03/05/2016.
  */
@@ -16,10 +18,14 @@ public class Enemy extends Sprite {
     private Body body;
     private Level level;
     private Vector2 enemyPos;
+    private Sprite cannon;
     private Player player;
 
     public Enemy(Vector2 enemyPos, Level level){
         super(new Texture("enemies/orangeTank.png"));
+        cannon = new Sprite(new Texture("enemies/orangeCannon.png"));
+        cannon.setFlip(true,false);
+        cannon.setOrigin(cannon.getWidth() - 8,cannon.getHeight() / 2);
         EnemyBuilder builder = new EnemyBuilder((int)enemyPos.x, (int)enemyPos.y, (int)getWidth() / 2, (int)getHeight() / 2, level.getWorld(), 0.0001f,0.8f,0.01f, this);
         body = builder.getBody();
         this.level = level;
@@ -57,28 +63,42 @@ public class Enemy extends Sprite {
         });
         if(player != null){
             follow();
+            shoot();
         }
         body.setLinearDamping(5);
         setPosition(body.getPosition().x, body.getPosition().y);
     }
 
+    private void shoot(){
+        //Bloquear a 1 vez por segundo
+        Vector2 endPos = new Vector2();
+        Vector2 startPosition = new Vector2(body.getPosition().x, body.getPosition().y);
+        float[] pt = {startPosition.x * 0,startPosition.y * 1};
+        AffineTransform.getRotateInstance(Math.toRadians(getRotation()), startPosition.x, startPosition.y).transform(pt,0,pt,0,1);
+        endPos.x = pt[0];
+        endPos.y = pt[1];
+        level.enemyShoot(startPosition,endPos);
+    }
+
     private void follow(){
         setRotation ((float) ((Math.atan2 (player.getX() - getX(), -(player.getY() - getY()))*180.0d/Math.PI)+90.0f));
+        cannon.setRotation(getRotation());
         Vector2 direc = new Vector2(player.getX(), player.getY());
         direc.sub(getX(), getY());
         direc.nor();
-
         body.setLinearVelocity(direc.scl(100));
     }
 
     @Override
     public void draw(Batch batch) {
         super.draw(batch);
+        cannon.draw(batch);
     }
 
     @Override
     public void setPosition(float x, float y){
         super.setPosition( x - getWidth() / 2, y - getHeight() / 2);
+        cannon.setPosition((x - getWidth() / 2), (y - getHeight() / 2) + getHeight() / 2 - cannon.getHeight() / 2);
     }
 
     public void delete(){

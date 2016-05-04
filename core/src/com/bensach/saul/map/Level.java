@@ -12,6 +12,7 @@ import com.bensach.saul.enemies.EnemiesHandler;
 import com.bensach.saul.enemies.Enemy;
 import com.bensach.saul.map.generator.LevelBuilder;
 import com.bensach.saul.player.PlayerMovements;
+import sun.invoke.empty.Empty;
 
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
@@ -96,6 +97,19 @@ public class Level {
                 world.rayCast(callback, startPos, endPos);
                 break;
         }
+    }
+
+    public void enemyShoot(Vector2 startPos, Vector2 endPos){
+        final RayCastCallback callback = new RayCastCallback() {
+            @Override
+            public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
+                if(fixture.getBody().getUserData() instanceof Empty)return -1;
+                if(fixture.getBody().getUserData().equals("wall"))return -1;
+                System.out.println("FUCK U NIGGA");
+                return 0;
+            }
+        };
+        world.rayCast(callback, startPos, endPos);
     }
 
     public void updateEnemies(EnemiesHandler enemiesHandler){
