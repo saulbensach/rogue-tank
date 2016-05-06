@@ -20,10 +20,16 @@ public class Enemy extends Sprite {
     private Vector2 enemyPos;
     private Sprite cannon;
     private Player player;
+    private float shootTime;
+    private float currentTime;
+    private int enemyVelocity;
 
     public Enemy(Vector2 enemyPos, Level level){
         super(new Texture("enemies/orangeTank.png"));
         cannon = new Sprite(new Texture("enemies/orangeCannon.png"));
+        shootTime = 0;
+        currentTime = 0;
+        enemyVelocity = 60;
         cannon.setFlip(true,false);
         cannon.setOrigin(cannon.getWidth() - 8,cannon.getHeight() / 2);
         EnemyBuilder builder = new EnemyBuilder((int)enemyPos.x, (int)enemyPos.y, (int)getWidth() / 2, (int)getHeight() / 2, level.getWorld(), 0.0001f,0.8f,0.01f, this);
@@ -33,7 +39,8 @@ public class Enemy extends Sprite {
         setPosition(enemyPos.x, enemyPos.y);
     }
 
-    public void update(){
+    public void update(float delta){
+        currentTime -= delta;
         level.getWorld().setContactListener(new ContactListener() {
             @Override
             public void beginContact(Contact contact) {
@@ -63,7 +70,8 @@ public class Enemy extends Sprite {
         });
         if(player != null){
             follow();
-            shoot();
+            if(currentTime <= 0)
+                shoot();
         }
         body.setLinearDamping(5);
         setPosition(body.getPosition().x, body.getPosition().y);
@@ -78,6 +86,7 @@ public class Enemy extends Sprite {
         endPos.x = pt[0];
         endPos.y = pt[1];
         level.enemyShoot(startPosition,endPos);
+        currentTime += 1.0;
     }
 
     private void follow(){
@@ -86,7 +95,7 @@ public class Enemy extends Sprite {
         Vector2 direc = new Vector2(player.getX(), player.getY());
         direc.sub(getX(), getY());
         direc.nor();
-        body.setLinearVelocity(direc.scl(100));
+        body.setLinearVelocity(direc.scl(enemyVelocity));
     }
 
     @Override

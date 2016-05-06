@@ -15,9 +15,9 @@ public class EnemiesHandler {
         enemies = new ArrayList<Enemy>();
     }
 
-    public void updateEnemies(){
+    public void updateEnemies(float delta){
         for(Enemy enemy : enemies){
-            enemy.update();
+            enemy.update(delta);
         }
     }
 

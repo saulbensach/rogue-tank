@@ -18,7 +18,7 @@ public class Player extends Sprite implements InputProcessor {
     private Body body;
     private Level level;
     private Sprite cannon;
-    private float speed, rotVelocity;
+    private float speed, rotVelocity, shootDelay;
     private boolean forward,backwards,rotLeft,rotRight, shoot, arrowRight, arrowLeft;
 
     public Player (Vector2 playerPos, Level level){
@@ -26,7 +26,7 @@ public class Player extends Sprite implements InputProcessor {
         cannon = new Sprite(new Texture("player/cannon.png"));
         cannon.setFlip(true,false);
         cannon.setOrigin(cannon.getWidth() - 8,cannon.getHeight() / 2);
-        speed = 5000 ;rotVelocity = 0.05f;
+        speed = 5000 ;rotVelocity = 0.05f;shootDelay = 0f;
         PlayerBuilder builder = new PlayerBuilder((int)playerPos.x, (int)playerPos.y, (int)getWidth() / 2, (int)getHeight() / 2, level.getWorld(), 0.0001f,0.4f,0.01f, this);
         body = builder.getBody();
         this.playerPos = playerPos;
@@ -36,6 +36,7 @@ public class Player extends Sprite implements InputProcessor {
     }
 
     public void update(float delta){
+        shootDelay -= delta;
         if(forward)level.updatePlayer(PlayerMovements.FORWARD, body, (float) Math.toRadians(getRotation()), speed, rotVelocity);
         if(backwards)level.updatePlayer(PlayerMovements.BACKWARDS, body, (float) Math.toRadians(getRotation()), speed, rotVelocity);
         if(rotLeft)level.updatePlayer(PlayerMovements.ROTATE_LEFT, body, (float) Math.toRadians(getRotation()), speed, rotVelocity);
@@ -44,7 +45,12 @@ public class Player extends Sprite implements InputProcessor {
         if(arrowRight)cannon.rotate(-5);
         if(!forward && !backwards)body.setLinearDamping(5);
         if(!rotLeft && !rotRight)body.setTransform(body.getPosition(), 0);
-        if(shoot)level.updatePlayer(PlayerMovements.SHOOT, body, (float) Math.toRadians(cannon.getRotation()), speed, rotVelocity);
+        if(shoot){
+            if(shootDelay <= 0){
+                level.updatePlayer(PlayerMovements.SHOOT, body, (float) Math.toRadians(cannon.getRotation()), speed, rotVelocity);
+                shootDelay += 0.2;
+            }
+        }
         rotate((float) Math.toDegrees(body.getAngle()));
         body.getTransform().setRotation(getRotation());
         setPosition(body.getPosition().x, body.getPosition().y);

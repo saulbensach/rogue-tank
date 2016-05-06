@@ -44,7 +44,7 @@ public class GameScreen implements Screen {
         //update
         player.update(delta);
         level.updateEnemies(enemiesHandler);
-        enemiesHandler.updateEnemies();
+        enemiesHandler.updateEnemies(delta);
         updateCamera();
 
         //render

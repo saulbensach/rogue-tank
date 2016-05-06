@@ -105,7 +105,7 @@ public class Level {
             public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
                 if(fixture.getBody().getUserData() instanceof Empty)return -1;
                 if(fixture.getBody().getUserData().equals("wall"))return -1;
-                System.out.println("FUCK U NIGGA");
+                System.out.println("SHOOT");
                 return 0;
             }
         };
