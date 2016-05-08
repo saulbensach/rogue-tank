@@ -48,7 +48,7 @@ public class Player extends Sprite implements InputProcessor {
         if(shoot){
             if(shootDelay <= 0){
                 level.updatePlayer(PlayerMovements.SHOOT, body, (float) Math.toRadians(cannon.getRotation()), speed, rotVelocity);
-                shootDelay += 0.2;
+                shootDelay += 0.4;
             }
         }
         rotate((float) Math.toDegrees(body.getAngle()));

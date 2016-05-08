@@ -85,7 +85,7 @@ public class Enemy extends Sprite {
         AffineTransform.getRotateInstance(Math.toRadians(getRotation()), startPosition.x, startPosition.y).transform(pt,0,pt,0,1);
         endPos.x = pt[0];
         endPos.y = pt[1];
-        level.enemyShoot(startPosition,endPos);
+        level.enemyShoot(startPosition,endPos, getRotation());
         currentTime += 1.0;
     }
 

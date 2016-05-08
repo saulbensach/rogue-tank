@@ -1,5 +1,6 @@
 package com.bensach.saul.map;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -8,12 +9,15 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.bensach.saul.bullets.Bullet;
+import com.bensach.saul.bullets.BulletHandler;
 import com.bensach.saul.enemies.EnemiesHandler;
 import com.bensach.saul.enemies.Enemy;
 import com.bensach.saul.map.generator.LevelBuilder;
 import com.bensach.saul.player.PlayerMovements;
 import sun.invoke.empty.Empty;
 
+import javax.sound.sampled.LineEvent;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 
@@ -29,6 +33,7 @@ public class Level {
     private int velocityItearation, positionIteration;
     private Box2DDebugRenderer debugRenderer;
     private LevelBuilder builder;
+    private BulletHandler bulletHandler;
     private Vector2 lookAt;
     private Vector2 startPos;
     private Vector2 endPos;
@@ -38,7 +43,7 @@ public class Level {
     private Enemy enemyToKill;
     private ShapeRenderer shapeRenderer;
 
-    public Level(){
+    public Level(BulletHandler bulletHandler){
         timeStep        = 1/60f;velocityItearation = 6; positionIteration = 2;
         builder         = new LevelBuilder(400,400,1,80,50,80,50);
         lookAt          = new Vector2(1.000f,1.000f);
@@ -51,9 +56,10 @@ public class Level {
         normal          = new Vector2();
         collisionPoint  = new Vector2();
         shapeRenderer   = new ShapeRenderer();
+        this.bulletHandler = bulletHandler;
     }
 
-    public void updatePlayer(PlayerMovements movements, Body body, float rot, float speed, float rotVelocity){
+    public void updatePlayer(PlayerMovements movements, final Body body, final float rot, float speed, float rotVelocity){
         lookAt.x = (float) Math.cos(rot);
         lookAt.y = (float) Math.sin(rot);
         if(lookAt.len() > 0)lookAt.nor();
@@ -83,11 +89,14 @@ public class Level {
                     @Override
                     public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
                         if(fixture.getBody().getUserData().equals("wall")){
+                            Level.this.bulletHandler.add(new Bullet(startPos, point,rot));
+                            collisionPoint.set(point);
                             isCollision = false;
                             return -1;
                         }
                         if(fixture.isSensor())return 1;
                         Level.this.collisionPoint.set(point);
+                        Level.this.bulletHandler.add(new Bullet(startPos, point,rot));
                         isCollision = true;
                         enemyToKill = (Enemy) fixture.getBody().getUserData();
                         Level.this.normal.set(normal);
@@ -99,17 +108,17 @@ public class Level {
         }
     }
 
-    public void enemyShoot(Vector2 startPos, Vector2 endPos){
+    public void enemyShoot(final Vector2 enemyStartPos, Vector2 enemyEndPos, final float rota){
         final RayCastCallback callback = new RayCastCallback() {
             @Override
             public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
                 if(fixture.getBody().getUserData() instanceof Empty)return -1;
                 if(fixture.getBody().getUserData().equals("wall"))return -1;
-                System.out.println("SHOOT");
+                Level.this.bulletHandler.add(new Bullet(enemyStartPos, point, (float) Math.toRadians(rota)));
                 return 0;
             }
         };
-        world.rayCast(callback, startPos, endPos);
+        world.rayCast(callback, enemyStartPos, enemyEndPos);
     }
 
     public void updateEnemies(EnemiesHandler enemiesHandler){

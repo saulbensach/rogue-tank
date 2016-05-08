@@ -28,7 +28,7 @@ public class EnemyBuilder {
         fixtureDef.restitution = restitution;
         body.createFixture(fixtureDef);
         CircleShape circleShape = new CircleShape();
-        circleShape.setRadius(150f);
+        circleShape.setRadius(300f);
         FixtureDef sensor = new FixtureDef();
         sensor.shape = circleShape;
         sensor.isSensor = true;
