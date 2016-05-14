@@ -15,12 +15,12 @@ public class Bullet extends Sprite {
     private Vector2 position;
     private Vector2 velocity;
     public boolean toRemove = false;
-    private float speed = 50;
+    private float speed = 1;
     private float angle = 0;
     float distance = 0f;
 
     public Bullet(Vector2 startPos, Vector2 endPos, float angle){
-        super(new Texture("player/cannon.png"));
+        super(new Texture("player/bullet.png"));
         rotate((float) Math.toDegrees(angle));
         this.angle = (float) Math.toDegrees(angle);
         this.startPos = startPos;

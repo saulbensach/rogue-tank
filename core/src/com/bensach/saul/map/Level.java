@@ -13,6 +13,7 @@ import com.bensach.saul.bullets.Bullet;
 import com.bensach.saul.bullets.BulletHandler;
 import com.bensach.saul.enemies.EnemiesHandler;
 import com.bensach.saul.enemies.Enemy;
+import com.bensach.saul.enemies.EnemyBuilder;
 import com.bensach.saul.map.generator.LevelBuilder;
 import com.bensach.saul.player.PlayerMovements;
 import sun.invoke.empty.Empty;
@@ -45,7 +46,7 @@ public class Level {
 
     public Level(BulletHandler bulletHandler){
         timeStep        = 1/60f;velocityItearation = 6; positionIteration = 2;
-        builder         = new LevelBuilder(400,400,1,80,50,80,50);
+        builder         = new LevelBuilder(400,400,25,80,50,80,50);
         lookAt          = new Vector2(1.000f,1.000f);
         map             = builder.getMap();
         world           = builder.getWorld();
@@ -57,6 +58,7 @@ public class Level {
         collisionPoint  = new Vector2();
         shapeRenderer   = new ShapeRenderer();
         this.bulletHandler = bulletHandler;
+        int num = 0;
     }
 
     public void updatePlayer(PlayerMovements movements, final Body body, final float rot, float speed, float rotVelocity){
@@ -99,6 +101,7 @@ public class Level {
                         Level.this.bulletHandler.add(new Bullet(startPos, point,rot));
                         isCollision = true;
                         enemyToKill = (Enemy) fixture.getBody().getUserData();
+                        System.out.println("HIT");
                         Level.this.normal.set(normal);
                         return 0;
                     }
@@ -134,7 +137,7 @@ public class Level {
         world.step(timeStep,velocityItearation,positionIteration);
         renderer.setView(camera);
         renderer.render();
-        debugRenderer.render(world, camera.combined);
+        /*debugRenderer.render(world, camera.combined);
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(Color.WHITE);
@@ -142,11 +145,15 @@ public class Level {
             shapeRenderer.setColor(Color.RED);
         }
         shapeRenderer.line(startPos, endPos);
-        shapeRenderer.end();
+        shapeRenderer.end();*/
     }
 
     public World getWorld() {
         return world;
+    }
+
+    public ArrayList<Vector2> getEnemiesPositions(){
+        return builder.getEnemiesPositions();
     }
 
     public Vector2 getPlayerStart(){

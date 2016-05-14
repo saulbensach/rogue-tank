@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.bensach.saul.map.Level;
 import com.bensach.saul.player.Player;
+import sun.invoke.empty.Empty;
 
 import java.awt.geom.AffineTransform;
 
@@ -19,24 +20,28 @@ public class Enemy extends Sprite {
     private Level level;
     private Vector2 enemyPos;
     private Sprite cannon;
-    private Player player;
+    public Player player;
     private float shootTime;
     private float currentTime;
     private int enemyVelocity;
+    private String name;
+    private Enemy copyEnemy;
 
-    public Enemy(Vector2 enemyPos, Level level){
+    public Enemy(Vector2 enemyPos, Level level, String name){
         super(new Texture("enemies/orangeTank.png"));
         cannon = new Sprite(new Texture("enemies/orangeCannon.png"));
         shootTime = 0;
         currentTime = 0;
+        this.name = name;
         enemyVelocity = 60;
         cannon.setFlip(true,false);
         cannon.setOrigin(cannon.getWidth() - 8,cannon.getHeight() / 2);
-        EnemyBuilder builder = new EnemyBuilder((int)enemyPos.x, (int)enemyPos.y, (int)getWidth() / 2, (int)getHeight() / 2, level.getWorld(), 0.0001f,0.8f,0.01f, this);
-        body = builder.getBody();
         this.level = level;
         this.enemyPos = enemyPos;
         setPosition(enemyPos.x, enemyPos.y);
+        EnemyBuilder builder = new EnemyBuilder((int)enemyPos.x, (int)enemyPos.y, (int)getWidth() / 2, (int)getHeight() / 2, level.getWorld(), 0.0001f,0.8f,0.01f, this,name);
+        body = builder.getBody();
+        copyEnemy = this;
     }
 
     public void update(float delta){
@@ -45,15 +50,20 @@ public class Enemy extends Sprite {
             @Override
             public void beginContact(Contact contact) {
                 if(contact.getFixtureA().getBody().getUserData() instanceof Player){
-                    System.out.println("Following");
-                    Enemy.this.player = (Player) contact.getFixtureA().getBody().getUserData();
+                    if(contact.getFixtureB().getBody().getUserData() instanceof Enemy){
+                        Enemy data = (Enemy) contact.getFixtureB().getBody().getUserData();
+                        data.player = (Player) contact.getFixtureA().getBody().getUserData();
+                        data.shoot();
+                        data.follow();
+                        Enemy.this.player = (Player) contact.getFixtureA().getBody().getUserData();
+                    }
+
                 }
             }
 
             @Override
             public void endContact(Contact contact) {
                 if(contact.getFixtureA().getBody().getUserData() instanceof Player){
-                    System.out.println("FUCK ME");
                     Enemy.this.player = null;
                 }
             }
@@ -77,7 +87,7 @@ public class Enemy extends Sprite {
         setPosition(body.getPosition().x, body.getPosition().y);
     }
 
-    private void shoot(){
+    public void shoot(){
         //Bloquear a 1 vez por segundo
         Vector2 endPos = new Vector2();
         Vector2 startPosition = new Vector2(body.getPosition().x, body.getPosition().y);
@@ -89,7 +99,7 @@ public class Enemy extends Sprite {
         currentTime += 1.0;
     }
 
-    private void follow(){
+    public void follow(){
         setRotation ((float) ((Math.atan2 (player.getX() - getX(), -(player.getY() - getY()))*180.0d/Math.PI)+90.0f));
         cannon.setRotation(getRotation());
         Vector2 direc = new Vector2(player.getX(), player.getY());
@@ -118,7 +128,11 @@ public class Enemy extends Sprite {
     public boolean equals(Object object){
         if(object == null)return false;
         if(object == this)return true;
-        if(object instanceof Enemy)return true;
+        if(object instanceof Enemy){
+            Enemy enemy = (Enemy) object;
+            if(enemy.name.equals(name))
+                return true;
+        }
         return false;
     }
 }

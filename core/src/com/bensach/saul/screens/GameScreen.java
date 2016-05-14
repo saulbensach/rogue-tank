@@ -33,10 +33,14 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
         bulletHandler = new BulletHandler();
-        level = new Level(bulletHandler);
-        player = new Player(level.getPlayerStart(), level);
         enemiesHandler = new EnemiesHandler();
-        enemiesHandler.addEnemy(new Enemy(new Vector2(player.getX() + 90, player.getY()),level));
+        level = new Level(bulletHandler);
+        int num = 0;
+        for(Vector2 position : level.getEnemiesPositions()){
+            enemiesHandler.addEnemy(new Enemy(position, level, Integer.toString(num)));
+            num++;
+        }
+        player = new Player(level.getPlayerStart(), level);
         Gdx.input.setInputProcessor(player);
     }
 
@@ -61,7 +65,7 @@ public class GameScreen implements Screen {
         batch.end();
         //Testing
         if(Gdx.input.isKeyPressed(Input.Keys.R)){
-            level = new Level(bulletHandler);
+           // level = new GameScreen(gameStart, bu);
         }
     }
 
