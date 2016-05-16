@@ -68,6 +68,10 @@ public class GameScreen implements Screen {
         enemiesHandler.updateEnemies(delta);
         updateCamera();
 
+        if(player.getHealth() < 0){
+            gameStart.setScreen(gameStart.mainMenu);
+        }
+
         //render
         batch.setProjectionMatrix(camera.combined);
         level.draw(camera);
@@ -79,7 +83,7 @@ public class GameScreen implements Screen {
         drawUI();
         //Testing
         if(Gdx.input.isKeyPressed(Input.Keys.R)){
-           // level = new GameScreen(gameStart, bu);
+           //level = new Level(bulletHandler);
         }
     }
 
