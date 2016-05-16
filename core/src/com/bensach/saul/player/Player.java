@@ -27,7 +27,7 @@ public class Player extends Sprite implements InputProcessor {
         cannon = new Sprite(new Texture("player/cannon.png"));
         cannon.setFlip(true,false);
         cannon.setOrigin(cannon.getWidth() - 8,cannon.getHeight() / 2);
-        speed = 150000 ;rotVelocity = 0.05f;shootDelay = 0f;health = 100;bullets = 10;maxBullets = 50;
+        speed = 150000 ;rotVelocity = 0.05f;shootDelay = 0f;health = 10;bullets = 10;maxBullets = 50;
         PlayerBuilder builder = new PlayerBuilder((int)playerPos.x, (int)playerPos.y, (int)getWidth() / 2, (int)getHeight() / 2, level.getWorld(), 0.0001f,0.4f,0.01f, this);
         body = builder.getBody();
         this.playerPos = playerPos;

@@ -26,6 +26,8 @@ public class GameScreen implements Screen {
     private EnemiesHandler enemiesHandler;
     private BulletHandler bulletHandler;
     private float counter, timeCounter;
+    private float timerDeath;
+    private boolean muerto = false;
 
     public GameScreen(GameStart gameStart){
         this.gameStart = gameStart;
@@ -38,7 +40,7 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
         bulletHandler = new BulletHandler();
-        counter = 0f;timeCounter = 0f;
+        counter = 0f;timeCounter = 0f;timerDeath = 0f;
         enemiesHandler = new EnemiesHandler();
         bitmapFont = new BitmapFont();
         level = new Level(bulletHandler);
@@ -54,23 +56,22 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        timeCounter += delta;
-        if(timeCounter >= 1.0f){
-            timeCounter = 0f;
-            counter++;
-        }
+
         Gdx.gl.glClearColor(0f,0f,0f,0f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         //update
-        bulletHandler.update(delta);
-        player.update(delta);
-        level.updateEnemies(enemiesHandler);
-        enemiesHandler.updateEnemies(delta);
-        updateCamera();
-
-        if(player.getHealth() < 0){
-            gameStart.setScreen(gameStart.mainMenu);
+        if(!muerto){
+            timeCounter += delta;
+            if(timeCounter >= 1.0f){
+                timeCounter = 0f;
+                counter++;
+            }
+            bulletHandler.update(delta);
+            player.update(delta);
+            level.updateEnemies(enemiesHandler);
+            enemiesHandler.updateEnemies(delta);
         }
+        updateCamera();
 
         //render
         batch.setProjectionMatrix(camera.combined);
@@ -79,6 +80,7 @@ public class GameScreen implements Screen {
         player.draw(batch);
         enemiesHandler.drawEnemies(batch);
         bulletHandler.draw(batch);
+        mensajeMuerte(batch);
         batch.end();
         drawUI();
         //Testing
@@ -94,6 +96,9 @@ public class GameScreen implements Screen {
         bitmapFont.draw(batch, "Enemigos Restantes: "+enemiesHandler.getEnemies().size(), -Gdx.graphics.getWidth() / 2 + 120, (-Gdx.graphics.getHeight() / 2)+30);
         bitmapFont.draw(batch, ""+player.getHealth(), -10,0);
         bitmapFont.draw(batch, ""+player.getBullets()+"/"+player.getMaxBullets(),20, 0);
+        //if(player.getHealth() <= 20)
+        //TODO el mensaje de muerte tiene que ser un PNG
+            bitmapFont.draw(batch,"almela es puta",40,40,50,150,false);
         batch.end();
     }
 
@@ -120,6 +125,17 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
 
+    }
+
+    private void mensajeMuerte(SpriteBatch batch){
+        if(player.getHealth() <= 0){
+            timerDeath += Gdx.graphics.getDeltaTime();
+            muerto = true;
+            bitmapFont.draw(batch,"almela es puta",40,40);
+        }
+        if(timerDeath % 60 >= 5f){
+            gameStart.setScreen(gameStart.mainMenu);
+        }
     }
 
     private void updateCamera(){

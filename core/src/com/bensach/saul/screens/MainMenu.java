@@ -67,7 +67,7 @@ public class MainMenu implements Screen {
 
         Label.LabelStyle labelStyle = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
         Label startLabel = new Label("Start Game",labelStyle);
-        Label settingsLabel = new Label("Settings", labelStyle);
+        Label settingsLabel = new Label("Scores", labelStyle);
         Label exitLabel = new Label("Exit Game", labelStyle);
 
         startLabel.addListener(new ClickListener(){
