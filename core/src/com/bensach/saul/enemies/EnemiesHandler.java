@@ -21,8 +21,8 @@ public class EnemiesHandler {
         }
     }
 
-    public void dealDamage(Enemy enemy){
-
+    public void dealDamage(Enemy enemy, int damage){
+        enemy.setHealth(enemy.getHealth() - damage);
     }
 
     public void drawEnemies(Batch batch){
@@ -40,4 +40,7 @@ public class EnemiesHandler {
         enemies.remove(enemy);
     }
 
+    public ArrayList<Enemy> getEnemies() {
+        return enemies;
+    }
 }

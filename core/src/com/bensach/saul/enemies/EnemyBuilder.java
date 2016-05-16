@@ -8,9 +8,11 @@ import com.badlogic.gdx.physics.box2d.*;
 public class EnemyBuilder {
 
     private Body body;
+    public String name;
 
-    public EnemyBuilder(int x, int y, int width, int height, World world, float density, float friction, float restitution, Enemy enemy){
+    public EnemyBuilder(int x, int y, int width, int height, World world, float density, float friction, float restitution, Enemy enemy, String name){
         body = createBody(x,y,width,height,world,density,friction,restitution, enemy);
+        this.name = name;
     }
 
     private Body createBody(int x, int y, int width, int height, World world, float density, float friction, float restitution, Enemy enemy){

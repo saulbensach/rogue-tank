@@ -33,6 +33,7 @@ public class LevelBuilder {
     private int width, height, numRooms, roomMaxWidth, roomMinWidth, roomMaxHeight, roomMinHeight, wallWidth = 8;
     private Vector2 playerStart;
     private ArrayList<Rectangle> walls;
+    private ArrayList<Vector2> enemiesPositions;
 
     private int pointNumber;
     private ArrayList<Point> points;
@@ -62,6 +63,7 @@ public class LevelBuilder {
         map                 = new TiledMap();
         cells               = new CellType[width][height];
         walls               = new ArrayList<Rectangle>();
+        enemiesPositions    = new ArrayList<Vector2>();
         rooms               = new ArrayList<Room>();
         edges               = new ArrayList<Edge>();
         mstEdges            = new ArrayList<Edge>();
@@ -264,13 +266,11 @@ public class LevelBuilder {
             cells[px + width / 2][py + height / 2] = CellType.End;
             endRoom = true;
         }
-
         if(!firstRoom){
             cells[px + width / 2][py + height / 2] = CellType.Start;
             playerStart.set((px + width / 2) * cellSize, (py + height / 2) * cellSize);
             firstRoom = true;
-        }
-
+        }else{ enemiesPositions.add(new Vector2((px + width / 2)*cellSize, (py + height / 2)*cellSize));}
     }
 
     private boolean checkValues(int x, int y, int width, int height){
@@ -311,6 +311,7 @@ public class LevelBuilder {
         return false;
     }
 
+    public ArrayList<Vector2> getEnemiesPositions(){return enemiesPositions;}
     public Vector2 getPlayerStart() {
         return playerStart;
     }

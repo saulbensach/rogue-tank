@@ -13,7 +13,9 @@ import com.bensach.saul.bullets.Bullet;
 import com.bensach.saul.bullets.BulletHandler;
 import com.bensach.saul.enemies.EnemiesHandler;
 import com.bensach.saul.enemies.Enemy;
+import com.bensach.saul.enemies.EnemyBuilder;
 import com.bensach.saul.map.generator.LevelBuilder;
+import com.bensach.saul.player.Player;
 import com.bensach.saul.player.PlayerMovements;
 import sun.invoke.empty.Empty;
 
@@ -42,10 +44,20 @@ public class Level {
     private boolean isCollision;
     private Enemy enemyToKill;
     private ShapeRenderer shapeRenderer;
+    private Player player;
 
     public Level(BulletHandler bulletHandler){
         timeStep        = 1/60f;velocityItearation = 6; positionIteration = 2;
-        builder         = new LevelBuilder(400,400,1,80,50,80,50);
+        boolean fail = false;
+        while (!fail){
+            try{
+                builder         = new LevelBuilder(200,200,15,50,30,50,30);
+                fail = true;
+            }catch (Exception e){
+                System.out.println("restarting");
+            }
+        }
+
         lookAt          = new Vector2(1.000f,1.000f);
         map             = builder.getMap();
         world           = builder.getWorld();
@@ -57,6 +69,7 @@ public class Level {
         collisionPoint  = new Vector2();
         shapeRenderer   = new ShapeRenderer();
         this.bulletHandler = bulletHandler;
+        int num = 0;
     }
 
     public void updatePlayer(PlayerMovements movements, final Body body, final float rot, float speed, float rotVelocity){
@@ -113,8 +126,14 @@ public class Level {
             @Override
             public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
                 if(fixture.getBody().getUserData() instanceof Empty)return -1;
-                if(fixture.getBody().getUserData().equals("wall"))return -1;
+                if(fixture.getBody().getUserData().equals("wall")){
+                    return 0;
+                }
                 Level.this.bulletHandler.add(new Bullet(enemyStartPos, point, (float) Math.toRadians(rota)));
+                if(fixture.getBody().getUserData() instanceof Player){
+                    Player player = (Player) fixture.getBody().getUserData();
+                    player.dealDamage(1);
+                }
                 return 0;
             }
         };
@@ -123,8 +142,11 @@ public class Level {
 
     public void updateEnemies(EnemiesHandler enemiesHandler){
         if(isCollision){
-            enemiesHandler.removeEnemy(enemyToKill);
-            enemyToKill = null;
+            enemiesHandler.dealDamage(enemyToKill, 30);
+            if(enemyToKill.getHealth() < 0){
+                enemiesHandler.removeEnemy(enemyToKill);
+                Level.this.player.setBullets(Level.this.player.getMaxBullets());
+            }
             isCollision = false;
         }
     }
@@ -134,7 +156,7 @@ public class Level {
         world.step(timeStep,velocityItearation,positionIteration);
         renderer.setView(camera);
         renderer.render();
-        debugRenderer.render(world, camera.combined);
+        /*debugRenderer.render(world, camera.combined);
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(Color.WHITE);
@@ -142,11 +164,15 @@ public class Level {
             shapeRenderer.setColor(Color.RED);
         }
         shapeRenderer.line(startPos, endPos);
-        shapeRenderer.end();
+        shapeRenderer.end();*/
     }
 
     public World getWorld() {
         return world;
+    }
+
+    public ArrayList<Vector2> getEnemiesPositions(){
+        return builder.getEnemiesPositions();
     }
 
     public Vector2 getPlayerStart(){
@@ -157,4 +183,7 @@ public class Level {
         return builder.getWalls();
     }
 
+    public void setPlayer(Player player) {
+        this.player = player;
+    }
 }

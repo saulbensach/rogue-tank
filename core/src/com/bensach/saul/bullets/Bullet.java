@@ -20,7 +20,7 @@ public class Bullet extends Sprite {
     float distance = 0f;
 
     public Bullet(Vector2 startPos, Vector2 endPos, float angle){
-        super(new Texture("player/cannon.png"));
+        super(new Texture("player/bullet.png"));
         rotate((float) Math.toDegrees(angle));
         this.angle = (float) Math.toDegrees(angle);
         this.startPos = startPos;
@@ -38,7 +38,7 @@ public class Bullet extends Sprite {
         position.add(velocity);
         setPosition(position.x, position.y);
         distance = new Vector2(getX(), getY()).dst(endPos);
-        if(distance > 0 && distance < 20)toRemove = true;
+        if(distance > 0 && distance < 40)toRemove = true;
         if(distance > 3000)toRemove = true;
     }
 

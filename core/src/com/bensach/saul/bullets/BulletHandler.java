@@ -33,6 +33,4 @@ public class BulletHandler {
     public void add(Bullet bullet){
         bullets.add(bullet);
     }
-
-
 }
