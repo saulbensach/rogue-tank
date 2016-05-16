@@ -54,6 +54,7 @@ public class Player extends Sprite implements InputProcessor {
                 bullets--;
             }
         }
+        //hola
         rotate((float) Math.toDegrees(body.getAngle()));
         body.getTransform().setRotation(getRotation());
         setPosition(body.getPosition().x, body.getPosition().y);
