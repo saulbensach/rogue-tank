@@ -15,7 +15,7 @@ public class Bullet extends Sprite {
     private Vector2 position;
     private Vector2 velocity;
     public boolean toRemove = false;
-    private float speed = 1;
+    private float speed = 50;
     private float angle = 0;
     float distance = 0f;
 
@@ -38,7 +38,7 @@ public class Bullet extends Sprite {
         position.add(velocity);
         setPosition(position.x, position.y);
         distance = new Vector2(getX(), getY()).dst(endPos);
-        if(distance > 0 && distance < 20)toRemove = true;
+        if(distance > 0 && distance < 40)toRemove = true;
         if(distance > 3000)toRemove = true;
     }
 

@@ -15,6 +15,7 @@ import com.bensach.saul.enemies.EnemiesHandler;
 import com.bensach.saul.enemies.Enemy;
 import com.bensach.saul.enemies.EnemyBuilder;
 import com.bensach.saul.map.generator.LevelBuilder;
+import com.bensach.saul.player.Player;
 import com.bensach.saul.player.PlayerMovements;
 import sun.invoke.empty.Empty;
 
@@ -43,10 +44,20 @@ public class Level {
     private boolean isCollision;
     private Enemy enemyToKill;
     private ShapeRenderer shapeRenderer;
+    private Player player;
 
     public Level(BulletHandler bulletHandler){
         timeStep        = 1/60f;velocityItearation = 6; positionIteration = 2;
-        builder         = new LevelBuilder(400,400,25,80,50,80,50);
+        boolean fail = false;
+        while (!fail){
+            try{
+                builder         = new LevelBuilder(200,200,15,50,30,50,30);
+                fail = true;
+            }catch (Exception e){
+                System.out.println("restarting");
+            }
+        }
+
         lookAt          = new Vector2(1.000f,1.000f);
         map             = builder.getMap();
         world           = builder.getWorld();
@@ -101,7 +112,6 @@ public class Level {
                         Level.this.bulletHandler.add(new Bullet(startPos, point,rot));
                         isCollision = true;
                         enemyToKill = (Enemy) fixture.getBody().getUserData();
-                        System.out.println("HIT");
                         Level.this.normal.set(normal);
                         return 0;
                     }
@@ -116,8 +126,14 @@ public class Level {
             @Override
             public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
                 if(fixture.getBody().getUserData() instanceof Empty)return -1;
-                if(fixture.getBody().getUserData().equals("wall"))return -1;
+                if(fixture.getBody().getUserData().equals("wall")){
+                    return 0;
+                }
                 Level.this.bulletHandler.add(new Bullet(enemyStartPos, point, (float) Math.toRadians(rota)));
+                if(fixture.getBody().getUserData() instanceof Player){
+                    Player player = (Player) fixture.getBody().getUserData();
+                    player.dealDamage(1);
+                }
                 return 0;
             }
         };
@@ -126,8 +142,11 @@ public class Level {
 
     public void updateEnemies(EnemiesHandler enemiesHandler){
         if(isCollision){
-            enemiesHandler.removeEnemy(enemyToKill);
-            enemyToKill = null;
+            enemiesHandler.dealDamage(enemyToKill, 30);
+            if(enemyToKill.getHealth() < 0){
+                enemiesHandler.removeEnemy(enemyToKill);
+                Level.this.player.setBullets(Level.this.player.getMaxBullets());
+            }
             isCollision = false;
         }
     }
@@ -164,4 +183,7 @@ public class Level {
         return builder.getWalls();
     }
 
+    public void setPlayer(Player player) {
+        this.player = player;
+    }
 }

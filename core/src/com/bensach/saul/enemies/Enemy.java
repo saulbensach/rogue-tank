@@ -18,34 +18,30 @@ public class Enemy extends Sprite {
 
     private Body body;
     private Level level;
-    private Vector2 enemyPos;
     private Sprite cannon;
     public Player player;
-    private float shootTime;
     private float currentTime;
-    private int enemyVelocity;
+    private int enemyVelocity, health;
     private String name;
-    private Enemy copyEnemy;
 
     public Enemy(Vector2 enemyPos, Level level, String name){
         super(new Texture("enemies/orangeTank.png"));
         cannon = new Sprite(new Texture("enemies/orangeCannon.png"));
-        shootTime = 0;
         currentTime = 0;
+        health = 100;
         this.name = name;
         enemyVelocity = 60;
         cannon.setFlip(true,false);
         cannon.setOrigin(cannon.getWidth() - 8,cannon.getHeight() / 2);
         this.level = level;
-        this.enemyPos = enemyPos;
         setPosition(enemyPos.x, enemyPos.y);
         EnemyBuilder builder = new EnemyBuilder((int)enemyPos.x, (int)enemyPos.y, (int)getWidth() / 2, (int)getHeight() / 2, level.getWorld(), 0.0001f,0.8f,0.01f, this,name);
         body = builder.getBody();
-        copyEnemy = this;
     }
 
     public void update(float delta){
         currentTime -= delta;
+        if(currentTime < -1)currentTime = -1;
         level.getWorld().setContactListener(new ContactListener() {
             @Override
             public void beginContact(Contact contact) {
@@ -96,7 +92,7 @@ public class Enemy extends Sprite {
         endPos.x = pt[0];
         endPos.y = pt[1];
         level.enemyShoot(startPosition,endPos, getRotation());
-        currentTime += 1.0;
+        currentTime += 0.8f;
     }
 
     public void follow(){
@@ -134,5 +130,13 @@ public class Enemy extends Sprite {
                 return true;
         }
         return false;
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public void setHealth(int health) {
+        this.health = health;
     }
 }
