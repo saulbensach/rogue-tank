@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
@@ -27,7 +28,9 @@ public class GameScreen implements Screen {
     private BulletHandler bulletHandler;
     private float counter, timeCounter;
     private float timerDeath;
-    private boolean muerto = false;
+    private boolean muerto = false, winner = false;
+    private Texture mensajeMuerte = new Texture("gui/mensajeMuerte.png");
+    private Texture mensajeVictoria = new Texture("gui/mensajeVictoria.png");
 
     public GameScreen(GameStart gameStart){
         this.gameStart = gameStart;
@@ -56,7 +59,6 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-
         Gdx.gl.glClearColor(0f,0f,0f,0f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         //update
@@ -80,13 +82,10 @@ public class GameScreen implements Screen {
         player.draw(batch);
         enemiesHandler.drawEnemies(batch);
         bulletHandler.draw(batch);
-        mensajeMuerte(batch);
         batch.end();
+        victoria();
+        mensajeMuerte();
         drawUI();
-        //Testing
-        if(Gdx.input.isKeyPressed(Input.Keys.R)){
-           //level = new Level(bulletHandler);
-        }
     }
 
     private void drawUI(){
@@ -96,9 +95,11 @@ public class GameScreen implements Screen {
         bitmapFont.draw(batch, "Enemigos Restantes: "+enemiesHandler.getEnemies().size(), -Gdx.graphics.getWidth() / 2 + 120, (-Gdx.graphics.getHeight() / 2)+30);
         bitmapFont.draw(batch, ""+player.getHealth(), -10,0);
         bitmapFont.draw(batch, ""+player.getBullets()+"/"+player.getMaxBullets(),20, 0);
-        //if(player.getHealth() <= 20)
-        //TODO el mensaje de muerte tiene que ser un PNG
-            bitmapFont.draw(batch,"almela es puta",40,40,50,150,false);
+        if(player.getHealth() <= 0)
+            batch.draw(mensajeMuerte,0 - mensajeMuerte.getWidth() / 2,0);
+        if(winner){
+            batch.draw(mensajeVictoria,0 - mensajeVictoria.getWidth() / 2, 0);
+        }
         batch.end();
     }
 
@@ -127,15 +128,29 @@ public class GameScreen implements Screen {
 
     }
 
-    private void mensajeMuerte(SpriteBatch batch){
+    private void victoria(){
+        if(enemiesHandler.getEnemies().size() <= 0){
+            timerDeath += Gdx.graphics.getDeltaTime();
+            winner = true;
+        }
+        if(timerDeath % 60 >= 3f){
+            gameStart.setScreen(gameStart.mainMenu);
+            sendData();
+        }
+    }
+
+    private void mensajeMuerte(){
         if(player.getHealth() <= 0){
             timerDeath += Gdx.graphics.getDeltaTime();
             muerto = true;
-            bitmapFont.draw(batch,"almela es puta",40,40);
         }
-        if(timerDeath % 60 >= 5f){
+        if(timerDeath % 60 >= 3f){
             gameStart.setScreen(gameStart.mainMenu);
         }
+    }
+
+    private void sendData(){
+
     }
 
     private void updateCamera(){

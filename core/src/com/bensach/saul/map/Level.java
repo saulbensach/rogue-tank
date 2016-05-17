@@ -132,7 +132,7 @@ public class Level {
                 Level.this.bulletHandler.add(new Bullet(enemyStartPos, point, (float) Math.toRadians(rota)));
                 if(fixture.getBody().getUserData() instanceof Player){
                     Player player = (Player) fixture.getBody().getUserData();
-                    player.dealDamage(10);
+                    player.dealDamage(2);
                 }
                 return 0;
             }

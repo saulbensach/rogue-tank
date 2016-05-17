@@ -11,6 +11,7 @@ public class GameStart extends Game {
 	public MainMenu mainMenu;
 	public SettingsScreen settingsScreen;
 	public GameScreen gameScreen;
+	public ScoreScreen scoreScreen;
 
 	@Override
 	public void create () {
@@ -21,8 +22,9 @@ public class GameStart extends Game {
 		mainMenu 		= new MainMenu(this);
 		settingsScreen 	= new SettingsScreen(this);
 		gameScreen 		= new GameScreen(this);
+		scoreScreen		= new ScoreScreen(this);
 
-		setScreen(gameScreen);
+		setScreen(scoreScreen);
 
 	}
 
