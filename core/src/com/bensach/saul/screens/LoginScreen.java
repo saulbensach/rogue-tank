@@ -159,7 +159,7 @@ public class LoginScreen implements Screen {
 
     private boolean login(String user, String password){
         try {
-            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/tankmaster", "root", "");
+            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/tankmaster", "root", "root");
             String query = "SELECT password FROM users WHERE name LIKE ? AND password LIKE ?;";
             PreparedStatement statement = (PreparedStatement) conn.prepareStatement(query);
             statement.setString(1, user+"%");

@@ -24,7 +24,7 @@ public class GameStart extends Game {
 		gameScreen 		= new GameScreen(this);
 		scoreScreen		= new ScoreScreen(this);
 
-		setScreen(scoreScreen);
+		setScreen(gameScreen);
 
 	}
 

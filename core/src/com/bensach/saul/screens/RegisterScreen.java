@@ -164,12 +164,14 @@ public class RegisterScreen implements Screen {
 
     private void registerUser(String name, String password){
         try {
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost/tankmaster", "root", "");
-            String query = "INSERT INTO users VALUES(?,?,?)";
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost/tankmaster", "root", "root");
+            String query = "INSERT INTO users VALUES(?,?,?,?,?)";
             PreparedStatement statement = (PreparedStatement) connection.prepareStatement(query);
             statement.setNull(1, Types.INTEGER);
             statement.setString(2, name);
             statement.setString(3, password);
+            statement.setInt(4, 0);
+            statement.setInt(5, 0);
             statement.execute();
             statement.close();
             connection.close();

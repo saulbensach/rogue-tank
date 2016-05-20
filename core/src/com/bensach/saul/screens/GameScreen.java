@@ -14,6 +14,12 @@ import com.bensach.saul.enemies.EnemiesHandler;
 import com.bensach.saul.enemies.Enemy;
 import com.bensach.saul.map.Level;
 import com.bensach.saul.player.Player;
+import com.mysql.jdbc.PreparedStatement;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Types;
 
 public class GameScreen implements Screen {
 
@@ -28,7 +34,7 @@ public class GameScreen implements Screen {
     private BulletHandler bulletHandler;
     private float counter, timeCounter;
     private float timerDeath;
-    private boolean muerto = false, winner = false;
+    private boolean muerto = false, winner = false, pause = false;
     private Texture mensajeMuerte = new Texture("gui/mensajeMuerte.png");
     private Texture mensajeVictoria = new Texture("gui/mensajeVictoria.png");
 
@@ -62,16 +68,19 @@ public class GameScreen implements Screen {
         Gdx.gl.glClearColor(0f,0f,0f,0f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         //update
-        if(!muerto){
-            timeCounter += delta;
-            if(timeCounter >= 1.0f){
-                timeCounter = 0f;
-                counter++;
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) pause = !pause;
+        if(!pause){
+            if(!muerto){
+                timeCounter += delta;
+                if(timeCounter >= 1.0f){
+                    timeCounter = 0f;
+                    counter++;
+                }
+                bulletHandler.update(delta);
+                player.update(delta);
+                level.updateEnemies(enemiesHandler);
+                enemiesHandler.updateEnemies(delta);
             }
-            bulletHandler.update(delta);
-            player.update(delta);
-            level.updateEnemies(enemiesHandler);
-            enemiesHandler.updateEnemies(delta);
         }
         updateCamera();
 
@@ -82,10 +91,17 @@ public class GameScreen implements Screen {
         player.draw(batch);
         enemiesHandler.drawEnemies(batch);
         bulletHandler.draw(batch);
+        if(!pause){
+            menuPausa();
+        }
         batch.end();
         victoria();
         mensajeMuerte();
         drawUI();
+    }
+
+    private void menuPausa(){
+
     }
 
     private void drawUI(){
@@ -150,7 +166,18 @@ public class GameScreen implements Screen {
     }
 
     private void sendData(){
-
+        try {
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost/tankmaster", "root", "root");
+            String query = "INSERT INTO users VALUES(?,?)";
+            PreparedStatement statement = (PreparedStatement) connection.prepareStatement(query);
+            statement.setInt(2, (int) counter);
+            statement.setInt(3, player.getHealth());
+            statement.execute();
+            statement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private void updateCamera(){

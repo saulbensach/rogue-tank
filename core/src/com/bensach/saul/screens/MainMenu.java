@@ -111,7 +111,7 @@ public class MainMenu implements Screen {
         scoresButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                gameStart.setScreen(gameStart.settingsScreen);
+                gameStart.setScreen(gameStart.scoreScreen);
             }
         });
 
