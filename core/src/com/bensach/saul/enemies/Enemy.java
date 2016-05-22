@@ -2,6 +2,7 @@ package com.bensach.saul.enemies;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
@@ -23,9 +24,11 @@ public class Enemy extends Sprite {
     private float currentTime;
     private int enemyVelocity, health;
     private String name;
+    private BitmapFont font;
 
     public Enemy(Vector2 enemyPos, Level level, String name){
         super(new Texture("enemies/orangeTank.png"));
+        font = new BitmapFont();
         cannon = new Sprite(new Texture("enemies/orangeCannon.png"));
         currentTime = 0;
         health = 100;
@@ -108,6 +111,7 @@ public class Enemy extends Sprite {
     public void draw(Batch batch) {
         super.draw(batch);
         cannon.draw(batch);
+        font.draw(batch, ""+getHealth(),getX() + getWidth() / 2 - 10, getY());
     }
 
     @Override

@@ -8,7 +8,14 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.bensach.saul.bullets.BulletHandler;
 import com.bensach.saul.enemies.EnemiesHandler;
 import com.bensach.saul.enemies.Enemy;
@@ -26,6 +33,7 @@ public class GameScreen implements Screen {
     private GameStart gameStart;
     private OrthographicCamera camera;
     private OrthographicCamera uiCamera;
+    private Stage stage;
     private BitmapFont bitmapFont;
     private SpriteBatch batch;
     private Level level;
@@ -48,6 +56,10 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
+        stage = new Stage();
+        pause = false;
+        muerto = false;
+        createStage();
         bulletHandler = new BulletHandler();
         counter = 0f;timeCounter = 0f;timerDeath = 0f;
         enemiesHandler = new EnemiesHandler();
@@ -91,17 +103,21 @@ public class GameScreen implements Screen {
         player.draw(batch);
         enemiesHandler.drawEnemies(batch);
         bulletHandler.draw(batch);
-        if(!pause){
-            menuPausa();
-        }
         batch.end();
         victoria();
         mensajeMuerte();
         drawUI();
+        if(pause){
+            Gdx.input.setInputProcessor(stage);
+            menuPausa();
+        }else{
+            Gdx.input.setInputProcessor(player);
+        }
     }
 
     private void menuPausa(){
-
+        stage.act(Gdx.graphics.getDeltaTime());
+        stage.draw();
     }
 
     private void drawUI(){
@@ -117,6 +133,35 @@ public class GameScreen implements Screen {
             batch.draw(mensajeVictoria,0 - mensajeVictoria.getWidth() / 2, 0);
         }
         batch.end();
+    }
+
+    private void createStage(){
+        TextureAtlas textureAtlas = new TextureAtlas("gui/gui.pack");
+        Skin skin = new Skin();
+        skin.addRegions(textureAtlas);
+        TextButton continueButton = new TextButton("Continuar",new TextButton.TextButtonStyle(skin.getDrawable("greenButton"),skin.getDrawable("greenButton"),skin.getDrawable("greenButton"),new BitmapFont()));
+        TextButton exitButton = new TextButton("Salir",new TextButton.TextButtonStyle(skin.getDrawable("orangeButton"),skin.getDrawable("orangeButton"),skin.getDrawable("orangeButton"),new BitmapFont()));
+
+        continueButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                pause = false;
+            }
+        });
+
+        exitButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y){
+                gameStart.setScreen(gameStart.mainMenu);
+            }
+        });
+
+        Table table = new Table();
+        table.setFillParent(true);
+        table.add(continueButton).width(200).pad(5);
+        table.row();
+        table.add(exitButton).width(200).pad(5);
+        stage.addActor(table);
     }
 
     @Override
